@@ -29,3 +29,6 @@ class BuilderTestCase(TestCase):
         alts = [alt for alt, mtype in msg.alternatives if mtype == 'text/html']
         self.assertEqual(len(alts), 1)
         self.assertHTMLEqual(alts[0], '<h1> Welcome! </h1>')
+
+    def test_handle_template_exception(self):
+        msg = build_message('exception.email')

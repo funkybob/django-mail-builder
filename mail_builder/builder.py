@@ -11,6 +11,9 @@ def load_template(template_names):
     # Unwrap for Django 1.8+
     template = getattr(template, 'template', template)
 
+    return template
+
+def get_blocks(template):
     return {
         node.name: node
         for node in template.nodelist.get_nodes_by_type(BlockNode)
@@ -19,7 +22,8 @@ def load_template(template_names):
 
 def build_message(template_names, extra_context=None, force_multipart=False,
                   **defaults):
-    blocks = load_template(template_names)
+    template = load_template(template_names)
+    blocks = get_blocks(template)
 
     if extra_context is None:
         extra_context = {}
@@ -28,21 +32,22 @@ def build_message(template_names, extra_context=None, force_multipart=False,
     data = dict(defaults)
     data.setdefault('body', '')
 
-    # Scalar values
-    for field in ('subject', 'from_email', 'body', 'html'):
-        block = blocks.get(field)
-        if block:
-            data[field] = block.render(extra_context).strip()
+    with extra_context.bind_template(template):
+        # Scalar values
+        for field in ('subject', 'from_email', 'body', 'html'):
+            block = blocks.get(field)
+            if block:
+                data[field] = block.render(extra_context).strip()
 
-    # List values
-    for field in ('to', 'bcc', 'cc', 'reply_to'):
-        block = blocks.get(field)
-        if block:
-            data[field] = [
-                line.strip()
-                for line in block.render(extra_context).splitlines()
-                if line.strip()
-            ]
+        # List values
+        for field in ('to', 'bcc', 'cc', 'reply_to'):
+            block = blocks.get(field)
+            if block:
+                data[field] = [
+                    line.strip()
+                    for line in block.render(extra_context).splitlines()
+                    if line.strip()
+                ]
 
     html_content = data.pop('html', None)
     if force_multipart or html_content:
