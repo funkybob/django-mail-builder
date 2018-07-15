@@ -5,7 +5,7 @@ from django.template.loader_tags import BlockNode
 
 
 def build_message(template_names, extra_context=None, force_multipart=False,
-                  **defaults):
+                  inline_images=False, **defaults):
     if not isinstance(template_names, (list, tuple)):
         template_names = (template_names,)
     template = select_template(template_names).template
@@ -44,6 +44,9 @@ def build_message(template_names, extra_context=None, force_multipart=False,
         msg = EmailMultiAlternatives(**data)
         if html_content:
             msg.attach_alternative(html_content, 'text/html')
+        if inline_images:
+            for att in extra_context.request_context.get('cid', []):
+                msg.attach(att)
     else:
         msg = EmailMessage(**data)
 

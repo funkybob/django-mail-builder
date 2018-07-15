@@ -85,3 +85,24 @@ Two extra methods are added to allow control over context and params:
         return kwargs
 ```
 
+
+# Template Tags
+
+Two template tags have been added to help embeding files into your emails.
+
+To use them, add ``mail_builder`` to your `INSTALLED_APPS` setting, and include
+``{% load mailbuilder %}`` in your template.
+
+
+```
+    <img src="{% cid_static 'static/file/name.png' %}">
+    <img src="{% cid_media user.icon %}">
+```
+
+This will render the files using "cid" URIs, and place MIMEImage objects in a list in the context.
+
+
+```
+    msg = build_message(..., inline_images=True)
+```
+
