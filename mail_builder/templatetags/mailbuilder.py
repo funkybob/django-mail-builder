@@ -1,4 +1,5 @@
 from email.mime.image import MIMEImage
+from mimetypes import guess_type
 from urllib.parse import quote
 from uuid import uuid4
 
@@ -9,24 +10,28 @@ register = Library()
 
 
 @register.simple_tag(takes_context=True)
-def cid_static(context, path):
+def cid_static(context, path, mimetype=None):
     '''
     Embed a file from static files.
     '''
     fin = staticfiles_storage.open(path)
-    return _embed_cid(context, fin)
+    if mimetype is None:
+        mimetype, _ = guess_type(path)
+    return _embed_cid(context, fin, mimetype)
 
 
 @register.simple_tag(takes_context=True)
-def cid_media(context, field):
+def cid_media(context, field, mimetype=None):
     '''
     Embed a file from a FileField / ImageField
     '''
     fin = field.open()
-    return _embed_cid(context, fin)
+    if mimetype is None:
+        mimetype, _ = guess_type(field.name)
+    return _embed_cid(context, fin, mimetype)
 
 
-def _embed_cid(context, fobj):
+def _embed_cid(context, fobj, mimetype):
     '''
     Generates a CID URI, and stores the MIME attachment in the context.request_context
     '''
@@ -35,9 +40,16 @@ def _embed_cid(context, fobj):
     if 'cid' not in context.render_context:
         context.render_context['cid'] = []
 
-    mime = MIMEImage(fobj.read())
-    mime['Content-ID'] = '<{}>'.format(quote(str(cid)))
+    if mimetype is None:
+        mimetype = 'application/octet-stream'
 
-    context.render_context['cid'].append(mime)
+    mime_main, mime_sub = mimetype.split('/', 1)
+
+    mime_obj = MIMENonMultipart(mime_main, mime_sub, **{
+        'Content-ID': '<{}>'.format(quote(str(cid)))
+    })
+    mime_obj.set_payload(fobj.read())
+
+    context.render_context['cid'].append(mime_obj)
 
     return 'cid:{}'.format(cid)
