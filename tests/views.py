@@ -8,7 +8,7 @@ class SimpleForm(forms.Form):
 
 
 class SimpleView(EmailFormView):
-    template_name = 'form.html'
-    email_template = 'simple_view.email'
+    template_name = "form.html"
+    email_template = "simple_view.email"
     form_class = SimpleForm
-    success_url = '/'
+    success_url = "/"

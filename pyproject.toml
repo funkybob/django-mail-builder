@@ -1,0 +1,107 @@
+[project]
+name = "django-mail-builder"
+description = "Simple template-based EmailMessage builder for Django"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django",
+]
+
+authors = [
+    {name = "Curtis Maloney", email = "curtis@tinbrain.net" },
+]
+
+license.text = "BSD"
+
+classifiers = [
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: Implementation :: PyPy',
+]
+
+dynamic = ["version"]
+
+[project.urls]
+"Source Code" = "https://github.com/funkybob/django-mail-builder"
+
+[tool.setuptools.dynamic]
+version.attr = "mail_builder.__version__"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+dev-dependencies = [
+    "coverage",
+    "ruff",
+    "pytest",
+    "pytest-django",
+]
+
+[tool.coverage.run]
+branch = true
+source = ['.']
+
+[tool.ruff]
+line-length = 119
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    'E',
+    'F',
+    'W',
+    'I', # isort
+    'N',
+    'UP',
+    'S', # bandit (security)
+    'A', # builtins
+    'C', # commas
+    'C4', # comprehensions
+    'DTZ', # datetimez
+    'ISC', # implicit string concat
+    'PIE',
+    'ARG', # unused arguments
+    'PL', # pylint
+    'FLY', # f-string usages
+    'PERF',
+    'RUF', # ruff specific
+]
+
+ignore = [
+    'ISC001', # format whines about this
+    'RUF012',  # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+
+fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*" = [
+    'S101', # Ignore asserts in tests
+]
+
+[tool.ruff.format]
+quote-style = "double" # Lower chance of needing to escape; ' appears in strings more often than "
+
+docstring-code-format = false
+
+[tool.ruff.lint.isort]
+section-order = [
+    'future',
+    'standard-library',
+    'third-party',
+    'first-party',
+    'local-folder',
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+DJANGO_SETTINGS_MODULE = 'tests.settings'
