@@ -29,6 +29,7 @@ dynamic = ["version"]
 
 [project.urls]
 "Source Code" = "https://github.com/funkybob/django-mail-builder"
+"Documentation" = "https://django-mail-builder.readthedocs.io/en/"
 
 [tool.setuptools.dynamic]
 version.attr = "mail_builder.__version__"
